@@ -30,7 +30,8 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   .ease(d3.easeLinear).tween('update', function(d) {
     return function(t) { 
       force.nodes(leaves); 
-      force.alpha(0.5).restart(); 
+      force.alphaTarget(0.5)
+        .restart(); 
       };
   })
 
@@ -121,7 +122,7 @@ HTMLWidgets.widget({
           .attr("text-anchor", "middle");
         
         force = d3.forceSimulation(leaves)
-          .force("charge", d3.forceManyBody().strength(20))
+          .force("charge", d3.forceManyBody().strength(5 + Math.round(Math.min(width, height) / 100)))
           .force("center", d3.forceCenter(width / 2, height / 2))
           .force("collide", d3.forceCollide().radius(d => d.rt + 5).strength(0.7))
           .on("tick", function(e) {
@@ -132,13 +133,11 @@ HTMLWidgets.widget({
               .attr("x", d => d.x)
               .attr("y", d => d.y);
             })
-          .alpha(0.5)
-          .alphaDecay(0.01)
           .stop();
         
         // initialize simulation
         for (let i = 0; i < 200; ++i) { force.tick(); }
-        force.restart();
+        force.alphaTarget(0.5).restart();
 
         // change frame at interval
         let j = 1;
@@ -160,8 +159,9 @@ HTMLWidgets.widget({
         let leaves_tmp = get_leaves(starting_dat, width, height);
         area_to_value_ratio = calculate_area_to_value_ratio(leaves_tmp, sizing_factor);
 
-        // update center force
+        // update force
         force.force("center", d3.forceCenter(width / 2, (height - height_offset) / 2))
+        force.force("charge", d3.forceManyBody().strength(5 + Math.round(Math.min(width, height) / 100)))
         }
     }
   }
