@@ -4,8 +4,8 @@
 #'
 #'@param df dataframe
 #'@param key name of key column
-#'@param value name of value column
 #'@param frame name of frame column
+#'@param value name of value column
 #'@param color name of color column
 #'
 #'@examples
@@ -13,52 +13,49 @@
 #'                  value = round(runif(30)*100),
 #'                  time = rep(paste0(1:5, "pm"), each = 6),
 #'                  value2 = runif(30))
-#'MovingBubbles(dat, key = "data", value = "value", frame = "time")
-#'MovingBubbles(dat, key = "data", value = "value", frame = "time", color = "value2")
+#'MovingBubbles(dat, key = "data", frame = "time", value = "value")
+#'MovingBubbles(dat, key = "data", frame = "time", value = "value", color = "value2")
 #'
 #' @import htmlwidgets
+#' @import dplyr
+#' @importFrom magrittr extract extract2
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom colorRamps primary.colors
 #'
 #' @export
-MovingBubbles <- function(df, key, value, frame, color = NULL, width = NULL, height = NULL, elementId = NULL) {
+MovingBubbles <- function(df, key, frame, value, sizing_factor = 1, color = NULL, 
+                          width = NULL, height = NULL, elementId = NULL) {
+  
+  df <- data.frame(key = df[[key]], frame = df[[frame]], value = df[[value]])
 
   # factorize df$frame if not already
-  if (class(df[[frame]]) != "factor"){
-    df[[frame]] <- factor(df[[frame]])
+  if (class(df$frame) != "factor"){ 
+    df$frame <- factor(df$frame) 
+    }
+
+  # get starting df
+  max_frame <- df %>% group_by(frame) %>% 
+    summarize(value = sum(value)) %>% arrange(-value) %>%
+    extract2(1) %>% extract(1)
+  starting_df <- df %>% filter(frame == max_frame) %>%
+    arrange(-value)
+  hidden_keys <- data.frame(key = setdiff(unique(df$key), starting_df$key))
+  if (nrow(hidden_keys) > 0) {
+    for (i in 1:nrow(hidden_keys)) {
+      starting_df <- rbind(starting_df, 
+                           data.frame(key = hidden_keys$key[i],
+                                      frame = max_frame,
+                                      value = 0
+                                      ))
+    }
   }
+
+  x = list(df, levels(df$frame), starting_df, sizing_factor)
   
-  # check if color column is numeric
-  if (!is.null(color)){
-    if (is.double(df[[color]]) | is.integer(df[[color]])) {
-    color_numeric <- 1
-    } else {color_numeric <- 0}
-  }
-
-  # forward options using opts
-  if (is.null(color)){
-    opts = list(data.frame(
-      key = df[[key]],
-      value = df[[value]],
-      frame = df[[frame]]
-    ), levels(df[[frame]]),
-    0, # color
-    0
-    )
-  } else {
-    opts = list(data.frame(
-      key = df[[key]],
-      value = df[[value]],
-      frame = df[[frame]],
-      color = df[[color]]
-    ), levels(df[[frame]]),
-    1, # color
-    color_numeric
-    )
-  }
-
   # create widget
   htmlwidgets::createWidget(
     name = 'MovingBubbles',
-    opts,
+    x = x,
     width = width,
     height = height,
     package = 'MovingBubbles',

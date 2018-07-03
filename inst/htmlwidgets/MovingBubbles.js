@@ -1,3 +1,51 @@
+// global variables
+var height_offset = 50;
+
+function get_leaves(dat, width, height){
+  return d3.pack().size([width, height - height_offset]).padding(5)(
+    d3.hierarchy({children: dat})
+    .sum(d => d.value)
+  ).leaves();
+}
+
+function calculate_area_to_value_ratio(leaves, sizing_factor){
+  return Math.pow(leaves[0].r,2) / leaves[0].value * sizing_factor;
+}
+
+function update_leaves(leaves, dat, frames, j, area_to_value_ratio){
+  for(let i = 0; i < leaves.length; i++){
+    let result = dat.filter(d => d.frame == frames[j]).filter(d => d.key == leaves[i].data.key)
+    leaves[i].r = (result.length !== 0) ? Math.sqrt(result[0].value*area_to_value_ratio) : 0;
+  }
+  return leaves;
+}
+
+function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force){
+
+  // update leaves to next j
+  leaves = update_leaves(leaves, dat, frames, j, area_to_value_ratio);
+
+  // transition setting for circles and labels
+  let t = d3.transition().duration(1000)
+  .ease(d3.easeLinear).tween('update', function(d) {
+    return function(t) { 
+      force.nodes(leaves); 
+      force.alpha(0.5).restart(); 
+      };
+  })
+
+  // transition circles and labels
+  circles.transition(t).attr("r", d => d.r);
+  labels.transition(t)
+    .attr("font-size", function(d) { return 2 * d.r * 0.2 + "px"; });
+
+  // transition titles
+  d3.selectAll("p#title")
+    .transition()
+    .delay(1000)
+    .text(frames[j]);
+}
+
 HTMLWidgets.widget({
 
   name: 'MovingBubbles',
@@ -5,160 +53,116 @@ HTMLWidgets.widget({
   type: 'output',
 
   factory: function(el, width, height) {
-  
-    // TODO: define shared variables for this instance
-    
-    d3.select(el).append("p")
-      .attr("id", "title")
-      .style("margin-top", 0)
-      .style("margin-bottom",0)
-      .text("Demo");
-      
-    var svg_height = height - 50;
-    
+
+    // declare variables
     var svg = d3.select(el).append("svg")
+      .attr("id", "MovingBubbles")
       .attr("width", width)
-      .attr("height", svg_height)
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 9)
-      .attr("text-anchor", "middle");
-      
-    var pack = d3.pack().size([width, svg_height]).padding(1.5);
-      
-    // add button
-    d3.select(el).selectAll("button")
-      .data(["click here"])
-      .enter().append("button")
-      .attr("type", "button")
-      .attr("id", "bubbles")
-      .text(function(d){return d;});
-      
-    // define instance
-    var lastValue;
+      .attr("height", height - height_offset);
+    var area_to_value_ratio;
+    var sizing_factor;
+    var force;
+    var starting_dat;
   
     return {
 
       renderValue: function(opts) {
 
-        // TODO: code to render the widget, e.g.
-        lastValue = opts;
-        
-        var dataset = HTMLWidgets.dataframeToD3(opts[0]);
-        var frames = opts[1];
-        var specified_color = opts[2];
-        var color_numeric = opts[3];
-        
-        var interval_time = 1000;
-  
-        var color = d3.scaleOrdinal(d3.schemeCategory20);
-        var heatmapColor;
-        if (specified_color && color_numeric) {
-          heatmapColor = d3.scaleLinear()
-            .domain([d3.min(dataset, function(d) { return d.color; }), d3.max(dataset, function(d) { return d.color; })])
-            .range(["#6363FF",  "#FF6364"]);
-        }
+        // get data from R
+        let dat = HTMLWidgets.dataframeToD3(opts[0]);
+        let frames = opts[1];
+        starting_dat = HTMLWidgets.dataframeToD3(opts[2]);
+        sizing_factor = opts[3];
 
-        function update(data){
-                  
-          // hierarchy
-          var h = d3.hierarchy({children: data})
-          .sum(function(d){return d.value;});
+        // calculate leaves
+        var leaves = get_leaves(starting_dat, width, height);
+
+        // calculate area_to_value_ratio
+        area_to_value_ratio = calculate_area_to_value_ratio(leaves, sizing_factor);
         
-          // transition
-          var t = d3.transition()
-                .duration(interval_time - 300)
-                .ease(d3.easePolyInOut);
+        // reset to first frame
+        leaves = update_leaves(leaves, dat, frames, 1, area_to_value_ratio);
+
+        // add title
+        d3.select(el).insert("p", "svg")
+          .attr("id", "title")
+          .style("margin-top", 0)
+          .style("margin-bottom", 0)
+          .style("position", "absolute")
+          .style("text-align", "center")
+          .style("width", "100%")
+          .text(frames[0]);
+
+        // add bubbles
+        let circles = svg.selectAll("circle")
+          .data(leaves)
+          .enter().append("circle")
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+            .attr("r", d => d.r)
+            .attr("id", d => d.data.key)
+            .each(function(d){
+              // add dynamic r getter
+              var n = d3.select(this);
+              Object.defineProperty(d, "rt", {get: function(){
+                return +n.attr("r");
+                }})
+              });
         
-          // JOIN
-          // join new data with old elements, if any.
-          var nodes = svg.selectAll("g")
-            .data(pack(h).leaves(), function(d) {return d.data.key;});
-          var circles = nodes.selectAll("circle")
-            .data(pack(h).leaves(), function(d){return d.data.key;});
-          var labels = nodes.selectAll("text").selectAll("tspan")
-          .data(pack(h).leaves(), function(d) {return d.data.key;});
+        // add text inside bubbles
+        var labels = svg.selectAll("text")
+        .data(leaves)
+        .enter().append("text")
+          .text(d => d.data.key)
+          .attr("x", d => d.x)
+          .attr("y", d => d.y)
+          .attr("font-size", function(d) { return 2 * d.r * 0.2 + "px" })
+          .attr("fill", "#dfdfdf")
+          .attr("text-anchor", "middle");
         
-          // EXIT
-          nodes.exit().transition(t).remove();
-          circles.exit().transition(t).attr("r", 1e-6).remove();
-          labels.exit().transition(t).remove();
+        force = d3.forceSimulation(leaves)
+          .force("charge", d3.forceManyBody().strength(20))
+          .force("center", d3.forceCenter(width / 2, height / 2))
+          .force("collide", d3.forceCollide().radius(d => d.rt + 5).strength(0.7))
+          .on("tick", function(e) {
+            svg.selectAll("circle")
+              .attr("cx", d => d.x)
+              .attr("cy", d => d.y);
+            svg.selectAll("text")
+              .attr("x", d => d.x)
+              .attr("y", d => d.y);
+            })
+          .alpha(0.5)
+          .alphaDecay(0.01)
+          .stop();
         
-          // UPDATE old elements as needed.
-          nodes.transition(t).attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-          
-          circles.transition(t).attr("class", "UPDATE")
-            //.attr("id", function(d) { return d.key; })
-            .attr("r", function(d) { return d.r; })
-            .style("fill", function(d) { 
-              if (specified_color) { if (color_numeric) {
-                return heatmapColor(d.data.color);
-              } else {
-                return color(d.data.color);
-              }} else {
-                return color(d.data.key);
-              }
-            });
-        
-          labels.transition(t).text(function(d) { return d.data.key;});
-        
-          // ENTER 
-          // create new elements as needed.
-          var updated_nodes = nodes.enter().append("g")
-            .attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-          
-          updated_nodes.append("circle")
-            .attr("class", "ENTER")
-            .attr("r", function(d){return d.r;})
-            .style("fill", function(d) { 
-              if (specified_color) { 
-                if (color_numeric) {
-                  return heatmapColor(d.data.color);
-                } else {
-                  return color(d.data.color);
-                }
-              } else {
-                  return color(d.data.key);
-              } 
-            });
-          
-          var updated_texts = updated_nodes.append("text");
-          updated_texts.append("tspan")
-            .text(function(d) { return d.data.key;});
-        }
-        
-        // plot
-        update(dataset.filter(function(d) {return d.frame == frames[0]}));
-  
-        // event listener
-        d3.selectAll("button#bubbles")
-          .on("click", function() {
-            var i = 0;
-            var t = d3.interval(function(elapsed) {
-              d3.select("p#title").text(frames[i]);
-              update(dataset.filter(function(d) {return d.frame == frames[i]}));
-              i++;
-              if (elapsed > frames.length*interval_time) t.stop();
-            }, interval_time);
-          });
+        // initialize simulation
+        for (let i = 0; i < 200; ++i) { force.tick(); }
+        force.restart();
+
+        // change frame at interval
+        let j = 1;
+        d3.interval(function() {
+          update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force);
+          j++;
+          if (j == frames.length) { j = 0; } // loop
+        }, 1500);
+
       },
 
       resize: function(width, height) {
 
-        // TODO: code to re-render the widget with a new size
-        svg_height = height - 50;
-        
-        svg = d3.select(el).select("svg")
-          .attr("width", width)
-          .attr("height", svg_height);
-        
-        pack = d3.pack().size([width, svg_height]).padding(1.5);
-        
-        // render last value if any
-        if (lastValue) {
-          this.renderValue(lastValue);
+        // update svg size
+        svg.attr("width", width)
+          .attr("height", height - height_offset);
+
+        // recalculate area_to_value_ratio
+        let leaves_tmp = get_leaves(starting_dat, width, height);
+        area_to_value_ratio = calculate_area_to_value_ratio(leaves_tmp, sizing_factor);
+
+        // update center force
+        force.force("center", d3.forceCenter(width / 2, (height - height_offset) / 2))
         }
     }
-  };
-}});
+  }
+});

@@ -4,17 +4,17 @@
 \alias{MovingBubbles}
 \title{Animated Bubble Chart}
 \usage{
-MovingBubbles(df, key, value, frame, color = NULL, width = NULL,
-  height = NULL, elementId = NULL)
+MovingBubbles(df, key, frame, value, sizing_factor = 1, color = NULL,
+  width = NULL, height = NULL, elementId = NULL)
 }
 \arguments{
 \item{df}{dataframe}
 
 \item{key}{name of key column}
 
-\item{value}{name of value column}
-
 \item{frame}{name of frame column}
+
+\item{value}{name of value column}
 
 \item{color}{name of color column}
 }
@@ -22,9 +22,11 @@ MovingBubbles(df, key, value, frame, color = NULL, width = NULL,
 MovingBubbles can be used to plot bubble chart with transitions.
 }
 \examples{
-dat <- data.frame(alphabets = rep(letters[1:6],5),
-                 size = round(runif(30)*100),
-                 time = rep(paste0(1:5, "pm"), each = 6))
-MovingBubbles(dat,"alphabets", "size", "time")
+dat <- data.frame(data = rep(letters[1:6],5),
+                 value = round(runif(30)*100),
+                 time = rep(paste0(1:5, "pm"), each = 6),
+                 value2 = runif(30))
+MovingBubbles(dat, key = "data", frame = "time", value = "value")
+MovingBubbles(dat, key = "data", frame = "time", value = "value", color = "value2")
 
 }
