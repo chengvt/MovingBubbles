@@ -1,5 +1,5 @@
 // global variables
-var height_offset = 50;
+var height_offset = 30;
 
 function get_leaves(dat, width, height){
   return d3.pack().size([width, height - height_offset]).padding(5)(
@@ -85,7 +85,7 @@ HTMLWidgets.widget({
         leaves = update_leaves(leaves, dat, frames, 1, area_to_value_ratio);
 
         // add title
-        d3.select(el).insert("p", "svg")
+        d3.select(el).append("p")
           .attr("id", "title")
           .style("margin-top", 0)
           .style("margin-bottom", 0)
