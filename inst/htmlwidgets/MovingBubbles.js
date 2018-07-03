@@ -30,15 +30,15 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   .ease(d3.easeLinear).tween('update', function(d) {
     return function(t) { 
       force.nodes(leaves); 
-      force.alphaTarget(0.5)
+      force.alphaTarget(0.3)
         .restart(); 
       };
   })
 
   // transition circles and labels
-  circles.transition(t).attr("r", d => d.r);
+  circles.transition(t).attr("r", d => d.r.toFixed(1));
   labels.transition(t)
-    .attr("font-size", function(d) { return 2 * d.r * 0.2 + "px"; });
+    .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2) + "px"; });
 
   // transition titles
   d3.selectAll("p#title")
@@ -98,9 +98,9 @@ HTMLWidgets.widget({
         let circles = svg.selectAll("circle")
           .data(leaves)
           .enter().append("circle")
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y)
-            .attr("r", d => d.r)
+            .attr("cx", d => d.x.toFixed(1))
+            .attr("cy", d => d.y.toFixed(1))
+            .attr("r", d => d.r.toFixed(1))
             .attr("id", d => d.data.key)
             .each(function(d){
               // add dynamic r getter
@@ -115,9 +115,9 @@ HTMLWidgets.widget({
         .data(leaves)
         .enter().append("text")
           .text(d => d.data.key)
-          .attr("x", d => d.x)
-          .attr("y", d => d.y)
-          .attr("font-size", function(d) { return 2 * d.r * 0.2 + "px" })
+          .attr("x", d => d.x.toFixed(1))
+          .attr("y", d => d.y.toFixed(1))
+          .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2) + "px" })
           .attr("fill", "#dfdfdf")
           .attr("text-anchor", "middle");
         
@@ -127,17 +127,18 @@ HTMLWidgets.widget({
           .force("collide", d3.forceCollide().radius(d => d.rt + 5).strength(0.7))
           .on("tick", function(e) {
             svg.selectAll("circle")
-              .attr("cx", d => d.x)
-              .attr("cy", d => d.y);
+              .attr("cx", d => d.x.toFixed(1))
+              .attr("cy", d => d.y.toFixed(1));
             svg.selectAll("text")
-              .attr("x", d => d.x)
-              .attr("y", d => d.y);
+              .attr("x", d => d.x.toFixed(1))
+              .attr("y", d => d.y.toFixed(1));
             })
           .stop();
         
         // initialize simulation
         for (let i = 0; i < 200; ++i) { force.tick(); }
-        force.alphaTarget(0.5).restart();
+        force.alphaTarget(0.3)
+          .restart();
 
         // change frame at interval
         let j = 1;
