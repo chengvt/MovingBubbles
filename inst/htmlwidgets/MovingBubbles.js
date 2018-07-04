@@ -20,13 +20,14 @@ function update_leaves(leaves, dat, frames, j, area_to_value_ratio){
   return leaves;
 }
 
-function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force, font_size){
+function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, 
+  force, font_size, speed_factor){
 
   // update leaves to next j
   leaves = update_leaves(leaves, dat, frames, j, area_to_value_ratio);
 
   // transition setting for circles and labels
-  let t = d3.transition().duration(1000)
+  let t = d3.transition().duration(Math.round( 1000 * speed_factor))
   .ease(d3.easeLinear).tween('update', function(d) {
     return function(t) { 
       force.nodes(leaves); 
@@ -41,7 +42,7 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
     .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px"; });
 
   // transition titles
-  setTimeout(() => d3.select("p#title").text(frames[j]), 1000);
+  setTimeout(() => d3.select("p#title").text(frames[j]), Math.round(1000 * speed_factor));
 }
 
 HTMLWidgets.widget({
@@ -72,6 +73,7 @@ HTMLWidgets.widget({
         starting_dat = HTMLWidgets.dataframeToD3(opts[2]);
         bubble_size = opts[3];
         let font_size = opts[4];
+        let speed_factor = opts[5];
 
         // calculate leaves
         var leaves = get_leaves(starting_dat, width, height);
@@ -142,10 +144,11 @@ HTMLWidgets.widget({
         // change frame at interval
         let j = 1;
         d3.interval(function() {
-          update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force, font_size);
+          update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, 
+            force, font_size, speed_factor);
           j++;
           if (j == frames.length) { j = 0; } // loop
-        }, 1500);
+        }, 1500 * speed_factor);
 
       },
 

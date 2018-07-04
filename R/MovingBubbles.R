@@ -9,6 +9,7 @@
 #'@param color dataframe with key and color columns
 #'@param bubble_size bubble size factor
 #'@param font_size font size factor
+#'@param speed_factor speed factor (the lower the faster)
 #'
 #'@examples
 #'dat <- data.frame(data = rep(letters[1:6],5),
@@ -26,7 +27,7 @@
 #'
 #' @export
 MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
-                          font_size = 1,
+                          font_size = 1, speed_factor = 1,
                           width = NULL, height = NULL, elementId = NULL) {
   
   df <- data.frame(key = df[[key]], frame = df[[frame]], value = df[[value]])
@@ -55,7 +56,8 @@ MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
       starting_df <- rbind(starting_df, hidden_keys)
   }
 
-  x = list(df, levels(df$frame), starting_df, bubble_size, font_size)
+  x = list(df, levels(df$frame), starting_df, bubble_size, 
+           font_size, speed_factor)
   
   # create widget
   htmlwidgets::createWidget(
