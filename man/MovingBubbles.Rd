@@ -4,7 +4,7 @@
 \alias{MovingBubbles}
 \title{Animated Bubble Chart}
 \usage{
-MovingBubbles(df, key, frame, value, sizing_factor = 1, color = NULL,
+MovingBubbles(df, key, frame, value, color = NULL, bubble_size = 1,
   width = NULL, height = NULL, elementId = NULL)
 }
 \arguments{
@@ -17,6 +17,8 @@ MovingBubbles(df, key, frame, value, sizing_factor = 1, color = NULL,
 \item{value}{name of value column}
 
 \item{color}{dataframe with key and color columns}
+
+\item{bubble_size}{bubble size factor}
 }
 \description{
 MovingBubbles can be used to plot bubble chart with transitions.

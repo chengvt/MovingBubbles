@@ -7,6 +7,7 @@
 #'@param frame name of frame column
 #'@param value name of value column
 #'@param color dataframe with key and color columns
+#'@param bubble_size bubble size factor
 #'
 #'@examples
 #'dat <- data.frame(data = rep(letters[1:6],5),
@@ -24,7 +25,7 @@
 #' @importFrom colorRamps primary.colors
 #'
 #' @export
-MovingBubbles <- function(df, key, frame, value, sizing_factor = 1, color = NULL, 
+MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1, 
                           width = NULL, height = NULL, elementId = NULL) {
   
   df <- data.frame(key = df[[key]], frame = df[[frame]], value = df[[value]])
@@ -53,7 +54,7 @@ MovingBubbles <- function(df, key, frame, value, sizing_factor = 1, color = NULL
       starting_df <- rbind(starting_df, hidden_keys)
   }
 
-  x = list(df, levels(df$frame), starting_df, sizing_factor)
+  x = list(df, levels(df$frame), starting_df, bubble_size)
   
   # create widget
   htmlwidgets::createWidget(

@@ -8,8 +8,8 @@ function get_leaves(dat, width, height){
   ).leaves();
 }
 
-function calculate_area_to_value_ratio(leaves, sizing_factor){
-  return Math.pow(leaves[0].r,2) / leaves[0].value * sizing_factor;
+function calculate_area_to_value_ratio(leaves, bubble_size){
+  return Math.pow(leaves[0].r,2) / leaves[0].value * bubble_size;
 }
 
 function update_leaves(leaves, dat, frames, j, area_to_value_ratio){
@@ -61,7 +61,7 @@ HTMLWidgets.widget({
       .attr("width", width)
       .attr("height", height - height_offset);
     var area_to_value_ratio;
-    var sizing_factor;
+    var bubble_size;
     var force;
     var starting_dat;
   
@@ -73,13 +73,13 @@ HTMLWidgets.widget({
         let dat = HTMLWidgets.dataframeToD3(opts[0]);
         let frames = opts[1];
         starting_dat = HTMLWidgets.dataframeToD3(opts[2]);
-        sizing_factor = opts[3];
+        bubble_size = opts[3];
 
         // calculate leaves
         var leaves = get_leaves(starting_dat, width, height);
 
         // calculate area_to_value_ratio
-        area_to_value_ratio = calculate_area_to_value_ratio(leaves, sizing_factor);
+        area_to_value_ratio = calculate_area_to_value_ratio(leaves, bubble_size);
         
         // reset to first frame
         leaves = update_leaves(leaves, dat, frames, 1, area_to_value_ratio);
@@ -159,7 +159,7 @@ HTMLWidgets.widget({
 
         // recalculate area_to_value_ratio
         let leaves_tmp = get_leaves(starting_dat, width, height);
-        area_to_value_ratio = calculate_area_to_value_ratio(leaves_tmp, sizing_factor);
+        area_to_value_ratio = calculate_area_to_value_ratio(leaves_tmp, bubble_size);
 
         // update force
         force.force("center", d3.forceCenter(width / 2, (height - height_offset) / 2))
