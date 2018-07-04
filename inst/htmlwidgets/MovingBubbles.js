@@ -42,6 +42,25 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   setTimeout(() => d3.select("p#title").text(frames[j]), Math.round(1000 * speed_factor));
 }
 
+function hex_to_rgb(hex){
+  hex = (hex.length = 9) ? hex.substring(0,7) : hex;
+  console.log(hex);
+  let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+  } : null;
+}
+
+function get_font_color(hex){
+  let rbg = hex_to_rgb(hex);
+  // https://stackoverflow.com/questions/1855884/
+  // Counting the perceptive luminance - human eye favors green color
+  let luminance = 1 - ( 0.299 * rbg.r + 0.587 * rbg.g + 0.114 * rbg.b ) / 255
+  return luminance < 0.5 ? "#303030" : "#dfdfdf";
+}
+
 HTMLWidgets.widget({
 
   name: 'MovingBubbles',
@@ -124,7 +143,7 @@ HTMLWidgets.widget({
           .attr("x", d => d.x.toFixed(1))
           .attr("y", d => d.y.toFixed(1))
           .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px" })
-          .attr("fill", "#dfdfdf")
+          .attr("fill", d => get_font_color(d.data.color))
           .attr("text-anchor", "middle")
           .attr("alignment-baseline", "middle");
         

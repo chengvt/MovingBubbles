@@ -6,7 +6,7 @@
 #'@param key name of key column
 #'@param frame name of frame column
 #'@param value name of value column
-#'@param color dataframe with key and color columns
+#'@param color dataframe with key and color columns. Color should be in hex form.
 #'@param bubble_size bubble size factor
 #'@param font_size font size factor
 #'@param speed_factor speed factor (the lower the faster)
