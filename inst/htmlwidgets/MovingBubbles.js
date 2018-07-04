@@ -102,6 +102,7 @@ HTMLWidgets.widget({
             .attr("cy", d => d.y.toFixed(1))
             .attr("r", d => d.r.toFixed(1))
             .attr("id", d => d.data.key)
+            .style("fill", d => d.data.color)
             .each(function(d){
               // add dynamic r getter
               var n = d3.select(this);

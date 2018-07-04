@@ -6,15 +6,16 @@
 #'@param key name of key column
 #'@param frame name of frame column
 #'@param value name of value column
-#'@param color name of color column
+#'@param color dataframe with key and color columns
 #'
 #'@examples
 #'dat <- data.frame(data = rep(letters[1:6],5),
 #'                  value = round(runif(30)*100),
 #'                  time = rep(paste0(1:5, "pm"), each = 6),
 #'                  value2 = runif(30))
+#'colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
 #'MovingBubbles(dat, key = "data", frame = "time", value = "value")
-#'MovingBubbles(dat, key = "data", frame = "time", value = "value", color = "value2")
+#'MovingBubbles(dat, key = "data", frame = "time", value = "value", color = colordf)
 #'
 #' @import htmlwidgets
 #' @import dplyr
@@ -27,7 +28,13 @@ MovingBubbles <- function(df, key, frame, value, sizing_factor = 1, color = NULL
                           width = NULL, height = NULL, elementId = NULL) {
   
   df <- data.frame(key = df[[key]], frame = df[[frame]], value = df[[value]])
-
+  
+  # join in color data.frame
+  if (is.null(color)) {
+    color <- data.frame(key = unique(df$key), color = "#000000")
+  } 
+  df <- left_join(df, color, by = "key")
+  
   # factorize df$frame if not already
   if (class(df$frame) != "factor"){ 
     df$frame <- factor(df$frame) 
@@ -39,15 +46,11 @@ MovingBubbles <- function(df, key, frame, value, sizing_factor = 1, color = NULL
     extract2(1) %>% extract(1)
   starting_df <- df %>% filter(frame == max_frame) %>%
     arrange(-value)
-  hidden_keys <- data.frame(key = setdiff(unique(df$key), starting_df$key))
+  suppressWarnings(hidden_keys <- data.frame(key = setdiff(unique(df$key), starting_df$key)) %>%
+    left_join(color, by = "key") %>% mutate(frame = max_frame, value = 0) %>%
+    select(key, frame, value, color))
   if (nrow(hidden_keys) > 0) {
-    for (i in 1:nrow(hidden_keys)) {
-      starting_df <- rbind(starting_df, 
-                           data.frame(key = hidden_keys$key[i],
-                                      frame = max_frame,
-                                      value = 0
-                                      ))
-    }
+      starting_df <- rbind(starting_df, hidden_keys)
   }
 
   x = list(df, levels(df$frame), starting_df, sizing_factor)
