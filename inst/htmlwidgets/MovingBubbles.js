@@ -125,7 +125,8 @@ HTMLWidgets.widget({
           .attr("y", d => d.y.toFixed(1))
           .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px" })
           .attr("fill", "#dfdfdf")
-          .attr("text-anchor", "middle");
+          .attr("text-anchor", "middle")
+          .attr("alignment-baseline", "middle");
         
         force = d3.forceSimulation(leaves)
           .force("charge", d3.forceManyBody().strength(7 + Math.round(Math.min(width, height) / 100)))
