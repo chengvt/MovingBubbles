@@ -142,7 +142,7 @@ HTMLWidgets.widget({
           .stop();
         
         // initialize simulation
-        for (let i = 0; i < 200; ++i) { force.tick(); }
+        for (let i = 0; i < 300; ++i) { force.tick(); }
         force.alphaTarget(0.3)
           .restart();
 
