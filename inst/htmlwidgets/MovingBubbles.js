@@ -41,10 +41,7 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
     .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px"; });
 
   // transition titles
-  d3.selectAll("p#title")
-    .transition()
-    .delay(1000)
-    .text(frames[j]);
+  setTimeout(() => d3.select("p#title").text(frames[j]), 1000);
 }
 
 HTMLWidgets.widget({
@@ -83,7 +80,7 @@ HTMLWidgets.widget({
         area_to_value_ratio = calculate_area_to_value_ratio(leaves, bubble_size);
         
         // reset to first frame
-        leaves = update_leaves(leaves, dat, frames, 1, area_to_value_ratio);
+        leaves = update_leaves(leaves, dat, frames, 0, area_to_value_ratio);
 
         // add title
         d3.select(el).append("p")
