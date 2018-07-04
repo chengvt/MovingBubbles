@@ -74,6 +74,7 @@ HTMLWidgets.widget({
         bubble_size = opts[3];
         let font_size = opts[4];
         let speed_factor = opts[5];
+        let title_size = opts[6];
 
         // calculate leaves
         var leaves = get_leaves(starting_dat, width, height);
@@ -92,6 +93,7 @@ HTMLWidgets.widget({
           .style("position", "absolute")
           .style("text-align", "center")
           .style("width", "100%")
+          .style("font-size", title_size)
           .text(frames[0]);
 
         // add bubbles
