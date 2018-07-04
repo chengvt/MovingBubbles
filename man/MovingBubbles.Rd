@@ -5,7 +5,7 @@
 \title{Animated Bubble Chart}
 \usage{
 MovingBubbles(df, key, frame, value, color = NULL, bubble_size = 1,
-  width = NULL, height = NULL, elementId = NULL)
+  font_size = 1, width = NULL, height = NULL, elementId = NULL)
 }
 \arguments{
 \item{df}{dataframe}
@@ -19,6 +19,8 @@ MovingBubbles(df, key, frame, value, color = NULL, bubble_size = 1,
 \item{color}{dataframe with key and color columns}
 
 \item{bubble_size}{bubble size factor}
+
+\item{font_size}{font size factor}
 }
 \description{
 MovingBubbles can be used to plot bubble chart with transitions.
@@ -26,8 +28,7 @@ MovingBubbles can be used to plot bubble chart with transitions.
 \examples{
 dat <- data.frame(data = rep(letters[1:6],5),
                  value = round(runif(30)*100),
-                 time = rep(paste0(1:5, "pm"), each = 6),
-                 value2 = runif(30))
+                 time = rep(paste0(1:5, "pm"), each = 6))
 colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
 MovingBubbles(dat, key = "data", frame = "time", value = "value")
 MovingBubbles(dat, key = "data", frame = "time", value = "value", color = colordf)

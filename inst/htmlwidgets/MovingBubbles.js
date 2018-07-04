@@ -38,7 +38,7 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   // transition circles and labels
   circles.transition(t).attr("r", d => d.r.toFixed(1));
   labels.transition(t)
-    .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2) + "px"; });
+    .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px"; });
 
   // transition titles
   d3.selectAll("p#title")
@@ -74,6 +74,7 @@ HTMLWidgets.widget({
         let frames = opts[1];
         starting_dat = HTMLWidgets.dataframeToD3(opts[2]);
         bubble_size = opts[3];
+        font_size = opts[4];
 
         // calculate leaves
         var leaves = get_leaves(starting_dat, width, height);
@@ -118,7 +119,7 @@ HTMLWidgets.widget({
           .text(d => d.data.key)
           .attr("x", d => d.x.toFixed(1))
           .attr("y", d => d.y.toFixed(1))
-          .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2) + "px" })
+          .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px" })
           .attr("fill", "#dfdfdf")
           .attr("text-anchor", "middle");
         

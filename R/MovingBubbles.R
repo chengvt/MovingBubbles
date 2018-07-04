@@ -8,12 +8,12 @@
 #'@param value name of value column
 #'@param color dataframe with key and color columns
 #'@param bubble_size bubble size factor
+#'@param font_size font size factor
 #'
 #'@examples
 #'dat <- data.frame(data = rep(letters[1:6],5),
 #'                  value = round(runif(30)*100),
-#'                  time = rep(paste0(1:5, "pm"), each = 6),
-#'                  value2 = runif(30))
+#'                  time = rep(paste0(1:5, "pm"), each = 6))
 #'colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
 #'MovingBubbles(dat, key = "data", frame = "time", value = "value")
 #'MovingBubbles(dat, key = "data", frame = "time", value = "value", color = colordf)
@@ -25,7 +25,8 @@
 #' @importFrom colorRamps primary.colors
 #'
 #' @export
-MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1, 
+MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
+                          font_size = 1,
                           width = NULL, height = NULL, elementId = NULL) {
   
   df <- data.frame(key = df[[key]], frame = df[[frame]], value = df[[value]])
@@ -54,7 +55,7 @@ MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
       starting_df <- rbind(starting_df, hidden_keys)
   }
 
-  x = list(df, levels(df$frame), starting_df, bubble_size)
+  x = list(df, levels(df$frame), starting_df, bubble_size, font_size)
   
   # create widget
   htmlwidgets::createWidget(
