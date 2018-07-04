@@ -128,7 +128,7 @@ HTMLWidgets.widget({
           .attr("text-anchor", "middle");
         
         force = d3.forceSimulation(leaves)
-          .force("charge", d3.forceManyBody().strength(5 + Math.round(Math.min(width, height) / 100)))
+          .force("charge", d3.forceManyBody().strength(7 + Math.round(Math.min(width, height) / 100)))
           .force("center", d3.forceCenter(width / 2, height / 2))
           .force("collide", d3.forceCollide().radius(d => d.rt + 5).strength(0.7))
           .on("tick", function(e) {
