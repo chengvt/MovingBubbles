@@ -1,7 +1,4 @@
-// global variables
-var height_offset = 30;
-
-function get_leaves(dat, width, height){
+function get_leaves(dat, width, height, height_offset){
   return d3.pack().size([width, height - height_offset]).padding(5)(
     d3.hierarchy({children: dat})
     .sum(d => d.value)
@@ -57,11 +54,12 @@ HTMLWidgets.widget({
     var svg = d3.select(el).append("svg")
       .attr("id", "MovingBubbles")
       .attr("width", width)
-      .attr("height", height - height_offset);
+      .attr("height", height - 30);
     var area_to_value_ratio;
     var bubble_size;
     var force;
     var starting_dat;
+    var height_offset;
   
     return {
 
@@ -75,9 +73,14 @@ HTMLWidgets.widget({
         let font_size = opts[4];
         let speed_factor = opts[5];
         let title_size = opts[6];
+        height_offset = opts[7];
+
+        // create svg
+        d3.select(el).select("svg")
+          .attr("height", height - height_offset);
 
         // calculate leaves
-        var leaves = get_leaves(starting_dat, width, height);
+        var leaves = get_leaves(starting_dat, width, height, height_offset);
 
         // calculate area_to_value_ratio
         area_to_value_ratio = calculate_area_to_value_ratio(leaves, bubble_size);
@@ -161,7 +164,7 @@ HTMLWidgets.widget({
           .attr("height", height - height_offset);
 
         // recalculate area_to_value_ratio
-        let leaves_tmp = get_leaves(starting_dat, width, height);
+        let leaves_tmp = get_leaves(starting_dat, width, height, height_offset);
         area_to_value_ratio = calculate_area_to_value_ratio(leaves_tmp, bubble_size);
 
         // update force

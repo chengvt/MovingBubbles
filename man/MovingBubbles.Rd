@@ -5,7 +5,8 @@
 \title{Animated Bubble Chart}
 \usage{
 MovingBubbles(df, key, frame, value, color = NULL, bubble_size = 1,
-  font_size = 1, width = NULL, height = NULL, elementId = NULL)
+  font_size = 1, speed_factor = 1, title_size = "20px",
+  height_offset = 35, width = NULL, height = NULL, elementId = NULL)
 }
 \arguments{
 \item{df}{dataframe}
@@ -21,6 +22,12 @@ MovingBubbles(df, key, frame, value, color = NULL, bubble_size = 1,
 \item{bubble_size}{bubble size factor}
 
 \item{font_size}{font size factor}
+
+\item{speed_factor}{speed factor (the lower the faster)}
+
+\item{title_size}{title text size eg. "16px"}
+
+\item{height_offset}{height for title space at the bottom}
 }
 \description{
 MovingBubbles can be used to plot bubble chart with transitions.
