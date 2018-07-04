@@ -20,7 +20,7 @@ function update_leaves(leaves, dat, frames, j, area_to_value_ratio){
   return leaves;
 }
 
-function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force){
+function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force, font_size){
 
   // update leaves to next j
   leaves = update_leaves(leaves, dat, frames, j, area_to_value_ratio);
@@ -71,7 +71,7 @@ HTMLWidgets.widget({
         let frames = opts[1];
         starting_dat = HTMLWidgets.dataframeToD3(opts[2]);
         bubble_size = opts[3];
-        font_size = opts[4];
+        let font_size = opts[4];
 
         // calculate leaves
         var leaves = get_leaves(starting_dat, width, height);
