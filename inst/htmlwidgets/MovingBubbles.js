@@ -189,7 +189,7 @@ HTMLWidgets.widget({
 
         // update force
         force.force("center", d3.forceCenter(width / 2, (height - height_offset) / 2))
-        force.force("charge", d3.forceManyBody().strength(5 + Math.round(Math.min(width, height) / 100)))
+        force.force("charge", d3.forceManyBody().strength(5 + Math.round(Math.min(width, height - height_offset) / 100)))
         }
     }
   }
