@@ -142,7 +142,7 @@ HTMLWidgets.widget({
         // change frame at interval
         let j = 1;
         d3.interval(function() {
-          update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force);
+          update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, force, font_size);
           j++;
           if (j == frames.length) { j = 0; } // loop
         }, 1500);
