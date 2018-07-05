@@ -1,3 +1,10 @@
+function adjust_charge_strength(width, height, leaves){
+  let radius_array = d3.values(leaves).map(d => d.r);
+  let bubble_count = radius_array.filter(r => r > 0).length;
+  let initial_strength = 1 + (bubble_count < 15 ? 15 - bubble_count : 0);
+  return initial_strength + Math.round(Math.min(width, height) / 100);
+}
+
 function get_leaves(dat, width, height, height_offset){
   return d3.pack().size([width, height - height_offset]).padding(5)(
     d3.hierarchy({children: dat})
@@ -23,6 +30,23 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   // update leaves to next j
   leaves = update_leaves(leaves, dat, frames, j, area_to_value_ratio);
 
+  // update force strength when all bubbles are small
+  let leaves_x = d3.values(leaves).map(d => d.x).map(function (num, idx) {
+    return {
+      xmin: num - d3.values(leaves).map(d => d.r)[idx],
+      xmax: num + d3.values(leaves).map(d => d.r)[idx]
+    }
+  });
+  let leaves_y = d3.values(leaves).map(d => d.y).map(function (num, idx) {
+    return {
+      ymin: num - d3.values(leaves).map(d => d.r)[idx],
+      ymax: num + d3.values(leaves).map(d => d.r)[idx]
+    }
+  });
+  let pack_width = d3.max(d3.values(leaves_x).map(d => d.xmax)) - d3.min(d3.values(leaves_x).map(d => d.xmin));
+  let pack_height = d3.max(d3.values(leaves_y).map(d => d.ymax)) - d3.min(d3.values(leaves_y).map(d => d.ymin));
+  force.force("charge", d3.forceManyBody().strength(adjust_charge_strength(pack_width, pack_height, leaves)));
+
   // transition setting for circles and labels
   let t = d3.transition().duration(Math.round( 1000 * speed_factor))
   .ease(d3.easeLinear).tween('update', function(d) {
@@ -44,7 +68,6 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
 
 function hex_to_rgb(hex){
   hex = (hex.length = 9) ? hex.substring(0,7) : hex;
-  console.log(hex);
   let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
       r: parseInt(result[1], 16),
@@ -79,6 +102,7 @@ HTMLWidgets.widget({
     var force;
     var starting_dat;
     var height_offset;
+    var leaves;
   
     return {
 
@@ -99,7 +123,7 @@ HTMLWidgets.widget({
           .attr("height", height - height_offset);
 
         // calculate leaves
-        var leaves = get_leaves(starting_dat, width, height, height_offset);
+        leaves = get_leaves(starting_dat, width, height, height_offset);
 
         // calculate area_to_value_ratio
         area_to_value_ratio = calculate_area_to_value_ratio(leaves, bubble_size);
@@ -148,7 +172,7 @@ HTMLWidgets.widget({
           .attr("alignment-baseline", "middle");
         
         force = d3.forceSimulation(leaves)
-          .force("charge", d3.forceManyBody().strength(7 + Math.round(Math.min(width, height) / 100)))
+          .force("charge", d3.forceManyBody().strength(adjust_charge_strength(width, height - height_offset, leaves)))
           .force("center", d3.forceCenter(width / 2, height / 2))
           .force("collide", d3.forceCollide().radius(d => d.rt + 5).strength(0.7))
           .on("tick", function(e) {
@@ -188,9 +212,9 @@ HTMLWidgets.widget({
         area_to_value_ratio = calculate_area_to_value_ratio(leaves_tmp, bubble_size);
 
         // update force
-        force.force("center", d3.forceCenter(width / 2, (height - height_offset) / 2))
-        force.force("charge", d3.forceManyBody().strength(5 + Math.round(Math.min(width, height - height_offset) / 100)))
-        }
+        force.force("center", d3.forceCenter(width / 2, (height - height_offset) / 2));
+        force.force("charge", d3.forceManyBody().strength(adjust_charge_strength(width, height - height_offset, leaves)));  
+      }
     }
   }
 });
