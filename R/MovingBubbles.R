@@ -27,8 +27,6 @@
 #' @import htmlwidgets
 #' @import dplyr
 #' @importFrom magrittr extract extract2
-#' @importFrom RColorBrewer brewer.pal
-#' @importFrom colorRamps primary.colors
 #'
 #' @export
 MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,

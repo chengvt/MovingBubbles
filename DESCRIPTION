@@ -5,7 +5,9 @@ Authors@R: person("Vipavee", "Trivittayasil", email = "trivittayasil_vipavee@cyb
 Description: Animated d3 Bubble Chart
 Depends: R (>= 3.3.2)
 Imports:
-    htmlwidgets
+    htmlwidgets,
+    dplyr,
+    magrittr
 License: MIT
 Encoding: UTF-8
 LazyData: true
