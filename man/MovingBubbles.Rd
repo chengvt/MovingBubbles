@@ -17,7 +17,7 @@ MovingBubbles(df, key, frame, value, color = NULL, bubble_size = 1,
 
 \item{value}{name of value column}
 
-\item{color}{dataframe with key and color columns}
+\item{color}{dataframe with key and color columns. Color should be in hex form.}
 
 \item{bubble_size}{bubble size factor}
 
@@ -36,8 +36,11 @@ MovingBubbles can be used to plot bubble chart with transitions.
 dat <- data.frame(data = rep(letters[1:6],5),
                  value = round(runif(30)*100),
                  time = rep(paste0(1:5, "pm"), each = 6))
-colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
+
 MovingBubbles(dat, key = "data", frame = "time", value = "value")
+
+# with color specified
+colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
 MovingBubbles(dat, key = "data", frame = "time", value = "value", color = colordf)
 
 }

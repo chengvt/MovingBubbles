@@ -17,8 +17,11 @@
 #'dat <- data.frame(data = rep(letters[1:6],5),
 #'                  value = round(runif(30)*100),
 #'                  time = rep(paste0(1:5, "pm"), each = 6))
-#'colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
+#'
 #'MovingBubbles(dat, key = "data", frame = "time", value = "value")
+#'
+#'# with color specified
+#'colordf <- data.frame(key = unique(dat$data), color = terrain.colors(6))
 #'MovingBubbles(dat, key = "data", frame = "time", value = "value", color = colordf)
 #'
 #' @import htmlwidgets
