@@ -38,7 +38,9 @@ MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
   # join in color data.frame
   if (is.null(color)) {
     color <- data.frame(key = unique(df$key), color = "#000000")
-  } 
+  } else {
+    color <- color %>% select(key, color)
+  }
   df <- left_join(df, color, by = "key")
   
   # factorize df$frame if not already
