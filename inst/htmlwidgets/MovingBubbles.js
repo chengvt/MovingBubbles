@@ -208,7 +208,7 @@ HTMLWidgets.widget({
           .attr("height", height - height_offset);
 
         // update title size
-        d3.select("p#title").style("width", width);
+        d3.select("p#title").style("width", width + "px");
 
         // recalculate area_to_value_ratio
         let leaves_tmp = get_leaves(starting_dat, width, height, height_offset);
