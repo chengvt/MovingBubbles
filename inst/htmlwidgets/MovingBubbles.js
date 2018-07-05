@@ -138,7 +138,7 @@ HTMLWidgets.widget({
           .style("margin-bottom", 0)
           .style("position", "absolute")
           .style("text-align", "center")
-          .style("width", "100%")
+          .style("width", width + "px")
           .style("font-size", title_size)
           .text(frames[0]);
 
@@ -206,6 +206,9 @@ HTMLWidgets.widget({
         // update svg size
         svg.attr("width", width)
           .attr("height", height - height_offset);
+
+        // update title size
+        d3.select("p#title").style("width", width);
 
         // recalculate area_to_value_ratio
         let leaves_tmp = get_leaves(starting_dat, width, height, height_offset);
