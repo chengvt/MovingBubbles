@@ -12,6 +12,7 @@
 #'@param speed_factor speed factor (the lower the faster)
 #'@param title_size title text size eg. "16px"
 #'@param height_offset height for title space at the bottom
+#'@param main title
 #'
 #'@examples
 #'dat <- data.frame(data = rep(letters[1:6],5),
@@ -31,11 +32,11 @@
 #' @export
 MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
                           font_size = 1, speed_factor = 1, title_size = "20px",
-                          height_offset = 35,
+                          height_offset = 35, main = NULL,
                           width = NULL, height = NULL, elementId = NULL) {
-  
+
   df <- data.frame(key = df[[key]], frame = df[[frame]], value = df[[value]])
-  
+
   # join in color data.frame
   if (is.null(color)) {
     color <- data.frame(key = unique(df$key), color = "#000000")
@@ -43,14 +44,14 @@ MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
     color <- color %>% select(key, color)
   }
   df <- left_join(df, color, by = "key")
-  
+
   # factorize df$frame if not already
-  if (class(df$frame) != "factor"){ 
-    df$frame <- factor(df$frame) 
+  if (class(df$frame) != "factor"){
+    df$frame <- factor(df$frame)
     }
 
   # get starting df
-  max_frame <- df %>% group_by(frame) %>% 
+  max_frame <- df %>% group_by(frame) %>%
     summarize(value = sum(value)) %>% arrange(-value) %>%
     extract2(1) %>% extract(1)
   starting_df <- df %>% filter(frame == max_frame) %>%
@@ -62,9 +63,9 @@ MovingBubbles <- function(df, key, frame, value, color = NULL, bubble_size = 1,
       starting_df <- rbind(starting_df, hidden_keys)
   }
 
-  x = list(df, levels(df$frame), starting_df, bubble_size, 
-           font_size, speed_factor, title_size, height_offset)
-  
+  x = list(df, levels(df$frame), starting_df, bubble_size,
+           font_size, speed_factor, title_size, height_offset, main)
+
   # create widget
   htmlwidgets::createWidget(
     name = 'MovingBubbles',

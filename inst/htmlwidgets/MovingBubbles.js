@@ -1,8 +1,8 @@
 function adjust_charge_strength(width, height, leaves){
   let radius_array = d3.values(leaves).map(d => d.r);
   let bubble_count = radius_array.filter(r => r > 5).length;
-  let initial_strength = 0.1 + (bubble_count < 15 ? 15 - bubble_count : 0);
-  return initial_strength + Math.round(Math.min(width, height) / 200);
+  let initial_strength = 0.3 + (bubble_count < 15 ? 15 - bubble_count : 0);
+  return initial_strength + Math.round(Math.min(width, height) / 150);
 }
 
 function get_leaves(dat, width, height, height_offset){
@@ -20,6 +20,7 @@ function update_leaves(leaves, dat, frames, j, area_to_value_ratio){
   for(let i = 0; i < leaves.length; i++){
     let result = dat.filter(d => d.frame == frames[j]).filter(d => d.key == leaves[i].data.key)
     leaves[i].r = (result.length !== 0) ? Math.sqrt(result[0].value*area_to_value_ratio) : 0;
+    leaves[i].data.value = (result.length !== 0) ? result[0].value : 0;
   }
   return leaves;
 }
@@ -49,30 +50,33 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
 
   // transition setting for circles and labels
   let t = d3.transition().duration(Math.round( 1000 * speed_factor))
-  .ease(d3.easeLinear).tween('update', function(d) {
-    return function(t) { 
-      force.nodes(leaves); 
-      force.alphaTarget(0.3)
-        .restart(); 
-      };
-  })
+    .ease(d3.easeLinear).tween('update', function(d) {
+      return function(t) { 
+        force.nodes(leaves); 
+        force.alphaTarget(0.3)
+          .restart(); 
+        };
+    })
 
   // transition circles and labels
   circles.transition(t).attr("r", d => d.r.toFixed(1));
   labels.transition(t)
     .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px"; });
-
-  // transition titles
-  setTimeout(() => d3.select("p#title").text(frames[j]), Math.round(1000 * speed_factor));
+  
+  // transition frames and tooltips
+  setTimeout(() => {
+    // frame
+    d3.select("p#frame").text(frames[j]), Math.round(1000 * speed_factor);
+  });
 }
 
 function hex_to_rgb(hex){
   hex = (hex.length = 9) ? hex.substring(0,7) : hex;
   let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
   } : null;
 }
 
@@ -93,7 +97,9 @@ HTMLWidgets.widget({
   factory: function(el, width, height) {
 
     // declare variables
-    var svg = d3.select(el).append("svg")
+    var main = d3.select(el).append("div").append("p")
+      .attr("id", "main")
+    var svg = d3.select(el).append("div").append("svg")
       .attr("id", "MovingBubbles")
       .attr("width", width)
       .attr("height", height - 30);
@@ -117,6 +123,7 @@ HTMLWidgets.widget({
         let speed_factor = opts[5];
         let title_size = opts[6];
         height_offset = opts[7];
+        let main_title = opts[8];
 
         // create svg
         d3.select(el).select("svg")
@@ -130,10 +137,20 @@ HTMLWidgets.widget({
         
         // reset to first frame
         leaves = update_leaves(leaves, dat, frames, 0, area_to_value_ratio);
-
-        // add title
+        
+        // add main title
+        main.style("margin-top", 0)
+          .style("margin-bottom", 0)
+          .style("position", "absolute")
+          .style("text-align", "center")
+          .style("width", width + "px")
+          .style("font-size", title_size)
+          .style("font-weight", "bold")
+          .text(main_title);
+        
+        // add frame title
         d3.select(el).append("p")
-          .attr("id", "title")
+          .attr("id", "frame")
           .style("margin-top", 0)
           .style("margin-bottom", 0)
           .style("position", "absolute")
@@ -141,6 +158,17 @@ HTMLWidgets.widget({
           .style("width", width + "px")
           .style("font-size", title_size)
           .text(frames[0]);
+        
+        // add tooltips
+        let tooltip = d3.select(el).append("div")
+          .attr("id", "tooltip")
+          .attr("class", "hidden")
+        tooltip.append("p")
+          .attr("id", "key")
+          .text("key")
+        tooltip.append("p")
+          .attr("id", "value")
+          .text("value")
 
         // add bubbles
         let circles = svg.selectAll("circle")
@@ -157,7 +185,22 @@ HTMLWidgets.widget({
               Object.defineProperty(d, "rt", {get: function(){
                 return +n.attr("r");
                 }})
-              });
+              })
+            .on("mouseover", d => {
+              d3.select("#tooltip")
+                .style("left", d3.event.pageX + "px")
+                .style("top", d3.event.pageY + "px")
+                .select("#key")
+                .text(d.data.key);
+              d3.select("#tooltip")  
+                .select("#value")
+                .text(d.data.value)
+
+              d3.select("#tooltip").classed("hidden", false);
+            })
+            .on("mouseout", d => {
+              d3.select("#tooltip").classed("hidden", true);
+            });
         
         // add text inside bubbles
         var labels = svg.selectAll("text")
@@ -197,7 +240,7 @@ HTMLWidgets.widget({
             force, font_size, speed_factor);
           j++;
           if (j == frames.length) { j = 0; } // loop
-        }, 1500 * speed_factor);
+        }, 2300 * speed_factor);
 
       },
 
@@ -207,8 +250,8 @@ HTMLWidgets.widget({
         svg.attr("width", width)
           .attr("height", height - height_offset);
 
-        // update title size
-        d3.select("p#title").style("width", width + "px");
+        // update frame size
+        d3.select("p#frame").style("width", width + "px");
 
         // recalculate area_to_value_ratio
         let leaves_tmp = get_leaves(starting_dat, width, height, height_offset);

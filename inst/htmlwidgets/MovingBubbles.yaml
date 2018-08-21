@@ -3,3 +3,4 @@ dependencies:
     version: 5.4.0
     src: htmlwidgets/lib
     script: d3.min.js
+    stylesheet: style.css
