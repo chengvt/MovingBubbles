@@ -225,6 +225,7 @@ HTMLWidgets.widget({
           .attr("x", d => d.x.toFixed(1))
           .attr("y", d => d.y.toFixed(1))
           .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px" })
+          .attr("font-family", "sans-serif")
           .attr("fill", d => get_font_color(d.data.color))
           .attr("text-anchor", "middle")
           .attr("alignment-baseline", "middle")
