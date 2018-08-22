@@ -96,8 +96,8 @@ HTMLWidgets.widget({
 
   factory: function(el, width, height) {
 
-    // center main div
-    d3.select(el).attr("style", "width: " + width + "px ;height:" + height + "px ;margin: 0 auto;");
+    // // center main div
+    // d3.select(el).attr("style", "width: " + width + "px ;height:" + height + "px ;margin: 0 auto;");
 
     // declare variables
     var main = d3.select(el).append("div").append("p")
