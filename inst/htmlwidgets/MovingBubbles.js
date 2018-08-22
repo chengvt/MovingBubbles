@@ -173,6 +173,30 @@ HTMLWidgets.widget({
           .attr("id", "value")
           .text("value")
 
+        function mouseover(d) {
+          tooltip
+            .style("left", (d3.event.pageX + 20) + "px")
+            .style("top", d3.event.pageY + "px");
+          
+          tooltip
+            .select("#key")
+            .text(d.data.key);
+          tooltip  
+            .select("#value")
+            .text(d.data.value);
+
+          tooltip.classed("hidden", false);
+        }
+
+        function mousemove(d) {
+          tooltip
+            .style("left", (d3.event.pageX + 20) + "px")
+            .style("top", d3.event.pageY + "px");
+          tooltip  
+            .select("#value")
+            .text(d.data.value);
+        }
+
         // add bubbles
         let circles = svg.selectAll("circle")
           .data(leaves)
@@ -189,21 +213,9 @@ HTMLWidgets.widget({
                 return +n.attr("r");
                 }})
               })
-            .on("mouseover", d => {
-              d3.select("#tooltip")
-                .style("left", d3.event.pageX + "px")
-                .style("top", d3.event.pageY + "px")
-                .select("#key")
-                .text(d.data.key);
-              d3.select("#tooltip")  
-                .select("#value")
-                .text(d.data.value)
-
-              d3.select("#tooltip").classed("hidden", false);
-            })
-            .on("mouseout", d => {
-              d3.select("#tooltip").classed("hidden", true);
-            });
+            .on("mouseover", d => mouseover(d))
+            .on("mouseout", () => {tooltip.classed("hidden", true);})
+            .on("mousemove", d => mousemove(d));
         
         // add text inside bubbles
         var labels = svg.selectAll("text")
@@ -215,7 +227,10 @@ HTMLWidgets.widget({
           .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px" })
           .attr("fill", d => get_font_color(d.data.color))
           .attr("text-anchor", "middle")
-          .attr("alignment-baseline", "middle");
+          .attr("alignment-baseline", "middle")
+          .on("mouseover", d => mouseover(d))
+          .on("mouseout", () => {tooltip.classed("hidden", true);})
+          .on("mousemove", d => mousemove(d));
         
         force = d3.forceSimulation(leaves)
           .force("charge", d3.forceManyBody().strength(adjust_charge_strength(width, height - height_offset, leaves)))
