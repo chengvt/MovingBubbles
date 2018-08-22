@@ -1,7 +1,7 @@
 function adjust_charge_strength(width, height, leaves){
   let radius_array = d3.values(leaves).map(d => d.r);
-  let bubble_count = radius_array.filter(r => r > 5).length;
-  let initial_strength = 0.3 + (bubble_count < 15 ? 15 - bubble_count : 0);
+  let small_bubble_count = radius_array.filter(r => r < 20).length;
+  let initial_strength = 2 + Math.pow(1/Math.exp(1), small_bubble_count) * 10;
   return initial_strength + Math.round(Math.min(width, height) / 150);
 }
 
