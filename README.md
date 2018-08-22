@@ -11,7 +11,7 @@ The function takes in a data.frame with key, value, and frame columns. Optional 
     dat$time <- factor(dat$time, levels = rep(paste0(1:5, "pm")))
     MovingBubbles(dat, key = "alphabets", frame = "time", value = "size")
 
-[demo (AKB48 election result visualization)](https://rawgit.com/chengvt/MovingBubbles/master/demo.html)
+[demo](https://rawgit.com/chengvt/MovingBubbles/master/demo_olympics.html)
 
 # Installation
 
