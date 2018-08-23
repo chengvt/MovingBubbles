@@ -27,3 +27,9 @@ p {
   font-size: 16px;
   line-height: 20px;
 }
+
+.label {
+  font-family: sans-serif;
+  text-anchor: middle;
+  alignment-baseline: middle;
+}

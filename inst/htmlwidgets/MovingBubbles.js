@@ -136,10 +136,8 @@ HTMLWidgets.widget({
           .attr("x", function(d) {return d.x.toFixed(1)})
           .attr("y", function(d) {return d.y.toFixed(1)})
           .attr("font-size", function(d) {return Math.round(2 * d.r * 0.2 * font_size) + "px" })
-          .attr("font-family", "sans-serif")
           .attr("fill", function(d) {return get_font_color(d.data.color);})
-          .attr("text-anchor", "middle")
-          .attr("alignment-baseline", "middle")
+          .attr("class", "label")
           .on("mouseover", function(d) {mouseover(d);})
           .on("mouseout", function() {tooltip.classed("hidden", true);})
           .on("mousemove", function(d) {mousemove(d);});
