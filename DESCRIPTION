@@ -1,7 +1,7 @@
 Package: MovingBubbles
 Title: Animated d3 Bubble Chart
-Version: 0.0.0.9000
-Authors@R: person("Vipavee", "Trivittayasil", email = "trivittayasil_vipavee@cyberagent.co.jp", role = c("aut", "cre"))
+Version: 0.1.0.9000
+Authors@R: person("Vipavee", "Trivittayasil", email = "vipavee.tri@gmail.com", role = c("aut", "cre"))
 Description: Animated d3 Bubble Chart
 Depends: R (>= 3.3.2)
 Imports:
