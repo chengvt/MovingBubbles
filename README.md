@@ -16,6 +16,3 @@ The function takes in a data.frame with key, value, and frame columns. Optional 
 # Installation
 
     devtools::install_github("chengvt/MovingBubbles", dependencies = TRUE)
-
-# Known Problems
-- The plot is not shown in Viewer pane of Rstudio in Windows. I suspected that Rstudio Viewer pane uses internet explorer, which does not support the style of Javascript used in the package. One solution is to click on "show in new window" to open the plot in Chrome or Microsoft Edge.
