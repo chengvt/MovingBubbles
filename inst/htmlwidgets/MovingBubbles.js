@@ -53,11 +53,7 @@ HTMLWidgets.widget({
         leaves = update_leaves(leaves, dat, frames, 0, area_to_value_ratio);
         
         // add main title
-        main.style("margin-top", 0)
-          .style("margin-bottom", 0)
-          .style("position", "absolute")
-          .style("text-align", "center")
-          .style("width", width + "px")
+        main.attr("class", "title")
           .style("font-size", title_size)
           .style("font-weight", "bold")
           .text(main_title);
@@ -65,10 +61,7 @@ HTMLWidgets.widget({
         // add frame title
         d3.select(el).append("p")
           .attr("id", "frame")
-          .style("margin-top", 0)
-          .style("margin-bottom", 0)
-          .style("position", "absolute")
-          .style("text-align", "center")
+          .attr("class", "title")
           .style("width", width + "px")
           .style("font-size", title_size)
           .text(frames[0]);
@@ -77,25 +70,15 @@ HTMLWidgets.widget({
         var tooltip = d3.select(el).append("div")
           .attr("id", "tooltip")
           .attr("class", "hidden");
-        tooltip.append("p")
-          .attr("id", "key")
-          .text("key");
-        tooltip.append("p")
-          .attr("id", "value")
-          .text("value");
+        tooltip.append("p").attr("id", "key").text("key");
+        tooltip.append("p").attr("id", "value").text("value");
 
         function mouseover(d) {
           tooltip
             .style("left", (d3.event.pageX + 20) + "px")
             .style("top", d3.event.pageY + "px");
-          
-          tooltip
-            .select("#key")
-            .text(d.data.key);
-          tooltip  
-            .select("#value")
-            .text(d.data.value);
-
+          tooltip.select("#key").text(d.data.key);
+          tooltip.select("#value").text(d.data.value);
           tooltip.classed("hidden", false);
         }
 
@@ -165,7 +148,7 @@ HTMLWidgets.widget({
         var j = 1;
         d3.interval(function() {
           update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, 
-            force, font_size, speed_factor);
+            force, font_size, speed_factor, el, width, title_size);
           j++;
           if (j == frames.length) { j = 0; } // loop
         }, 2300 * speed_factor);
@@ -223,7 +206,7 @@ function update_leaves(leaves, dat, frames, j, area_to_value_ratio){
 }
 
 function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, 
-  force, font_size, speed_factor){
+  force, font_size, speed_factor, el, width, title_size){
 
   // update leaves to next j
   leaves = update_leaves(leaves, dat, frames, j, area_to_value_ratio);
@@ -246,7 +229,7 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   force.force("charge", d3.forceManyBody().strength(adjust_charge_strength(pack_width, pack_height, leaves)));
 
   // transition setting for circles and labels
-  var t = d3.transition().duration(Math.round( 1000 * speed_factor))
+  var t = d3.transition().duration(Math.round( 1400 * speed_factor))
     .ease(d3.easeLinear).tween('update', function(d) {
       return function(t) { 
         force.nodes(leaves); 
@@ -260,11 +243,27 @@ function update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labe
   labels.transition(t)
     .attr("font-size", function(d) { return Math.round(2 * d.r * 0.2 * font_size) + "px"; });
   
-  // transition frames and tooltips
-  setTimeout(function() {
-    // frame
-    d3.select("p#frame").text(frames[j]), Math.round(1000 * speed_factor);
-  });
+  d3.select("p#frame")
+    .transition()
+    .duration(Math.round( 1600 * speed_factor))
+    .ease(d3.easeSinOut)
+    .on("start", function repeat() {
+      var t = d3.active(this)
+        .style("opacity", 0)
+        .remove();
+      
+        d3.select(el).append("p")
+            .attr("id", "frame")
+            .attr("class", "title")
+            .style("width", width + "px")
+            .style("font-size", title_size)
+            .text(frames[j])
+            .style("opacity", 0)
+          .transition()
+            .duration(Math.round( 1600 * speed_factor))
+            .ease(d3.easeQuad)
+            .style("opacity", 1);
+    })
 }
 
 function hex_to_rgb(hex){
