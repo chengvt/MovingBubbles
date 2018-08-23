@@ -19,6 +19,7 @@ HTMLWidgets.widget({
     var starting_dat;
     var height_offset;
     var leaves;
+    var global_width = width;
   
     return {
 
@@ -146,7 +147,7 @@ HTMLWidgets.widget({
         var j = 1;
         d3.interval(function() {
           update_frame(j, leaves, dat, frames, area_to_value_ratio, circles, labels, 
-            force, font_size, speed_factor, el, width, title_size);
+            force, font_size, speed_factor, el, global_width, title_size);
           j++;
           if (j == frames.length) { j = 0; } // loop
         }, 2300 * speed_factor);
@@ -158,6 +159,9 @@ HTMLWidgets.widget({
         // update svg size
         svg.attr("width", width)
           .attr("height", height - height_offset);
+        
+        // update global width and height
+        global_width = width;
 
         // update frame and main title size
         d3.select("p#frame").style("width", width + "px");
